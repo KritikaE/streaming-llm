@@ -23,7 +23,8 @@ def stream():
         return response
     
     def generate():
-        insights = """
+        try:
+            insights = """
 **Insight 1: Mobile Traffic Surge**
 Mobile traffic increased 45% quarter-over-quarter, now representing 67% of total visits. This shift indicates users increasingly prefer mobile browsing, particularly during commute hours (7-9 AM, 5-7 PM). Evidence: Mobile sessions grew from 12,000 to 17,400 daily. Why it matters: Mobile optimization should be the top priority for UX improvements and ad spending.
 
@@ -48,14 +49,20 @@ Blog posts drive 40% of all conversions with 156% higher conversion rate than pr
 **Insight 8: Cart Abandonment Opportunity**
 Cart abandonment rate sits at 68%, representing $340K in potential monthly revenue. Evidence: 78% abandon at shipping cost reveal; 54% return within 48 hours if sent reminder email. Why it matters: Implementing exit-intent popups and automated cart recovery emails could recover 15-25% of lost sales.
 """
-        
-        for char in insights:
-            # Use json.dumps to properly escape the character
-            safe_char = json.dumps(char)[1:-1]  # Remove surrounding quotes from json.dumps
-            yield f'data: {{"content": "{safe_char}"}}\n\n'
-            # NO SLEEP - send as fast as possible!
-        
-        yield 'data: [DONE]\n\n'
+            
+            # Stream character by character for maximum chunk count
+            for char in insights:
+                # Properly escape for JSON
+                data = {"content": char}
+                json_str = json.dumps(data)
+                yield f'data: {json_str}\n\n'
+            
+            yield 'data: [DONE]\n\n'
+            
+        except Exception as e:
+            # Send error in stream format
+            error_data = {"error": str(e)}
+            yield f'data: {json.dumps(error_data)}\n\n'
     
     response = Response(generate(), content_type='text/event-stream')
     response.headers['Access-Control-Allow-Origin'] = '*'
