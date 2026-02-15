@@ -1,18 +1,27 @@
 from flask import Flask, Response, request
+from flask_cors import CORS
 import time
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/')
 def home():
     return """
     <h1>Streaming LLM API</h1>
     <p>POST to /stream to get streaming response</p>
-    <p>Example: <code>curl -X POST https://your-url.onrender.com/stream</code></p>
+    <p>Example: <code>curl -X POST https://streaming-llm-7gbl.onrender.com/stream</code></p>
     """
 
-@app.route('/stream', methods=['POST'])
+@app.route('/stream', methods=['POST', 'OPTIONS'])  # Add OPTIONS for CORS
 def stream():
+    if request.method == 'OPTIONS':
+        response = Response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
+    
     def generate():
         insights = """
 **Insight 1: Mobile Traffic Surge**
@@ -47,7 +56,11 @@ Cart abandonment rate sits at 68%, representing $340K in potential monthly reven
         
         yield "data: [DONE]\n\n"
     
-    return Response(generate(), content_type='text/event-stream')
+    response = Response(generate(), content_type='text/event-stream')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no'
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
