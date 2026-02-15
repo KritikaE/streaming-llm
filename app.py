@@ -1,9 +1,10 @@
 from flask import Flask, Response, request
 from flask_cors import CORS
 import time
+import json
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
 @app.route('/')
 def home():
@@ -13,7 +14,7 @@ def home():
     <p>Example: <code>curl -X POST https://streaming-llm-7gbl.onrender.com/stream</code></p>
     """
 
-@app.route('/stream', methods=['POST', 'OPTIONS'])  # Add OPTIONS for CORS
+@app.route('/stream', methods=['POST', 'OPTIONS'])
 def stream():
     if request.method == 'OPTIONS':
         response = Response()
@@ -50,11 +51,12 @@ Cart abandonment rate sits at 68%, representing $340K in potential monthly reven
 """
         
         for char in insights:
-            safe_char = char.replace("'", "\\'").replace('"', '\\"').replace('\n', '\\n')
-            yield f"data: {{'content': '{safe_char}'}}\n\n"
+            # Use json.dumps to properly escape the character
+            safe_char = json.dumps(char)[1:-1]  # Remove surrounding quotes from json.dumps
+            yield f'data: {{"content": "{safe_char}"}}\n\n'
             time.sleep(0.01)
         
-        yield "data: [DONE]\n\n"
+        yield 'data: [DONE]\n\n'
     
     response = Response(generate(), content_type='text/event-stream')
     response.headers['Access-Control-Allow-Origin'] = '*'
