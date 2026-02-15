@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: streaming-llm
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+```
+
+---
+
+### Step 2: Upload to GitHub
+
+1. Go to https://github.com/new
+2. Create a new repository (name it `streaming-llm`)
+3. Upload your 3 files
+4. Commit
+
+**OR** skip GitHub and use Render's manual upload (next step)
+
+---
+
+### Step 3: Deploy on Render
+
+1. Go to https://render.com and sign up
+2. Click "New +" → "Web Service"
+3. **Option A:** Connect your GitHub repo
+   **Option B:** Choose "Public Git repository" and paste your GitHub URL
+4. Fill in:
+   - **Name:** `streaming-llm`
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `gunicorn app:app`
+   - **Instance Type:** `Free`
+5. Click "Create Web Service"
+
+---
+
+### Step 4: Wait for Deployment
+
+It takes 2-5 minutes. You'll see logs showing the build process.
+
+Once it says "Live", your URL will be:
+```
+https://streaming-llm.onrender.com
+```
+
+---
+
+### Step 5: Test Your Endpoint
+
+Your submission URL is:
+```
+https://streaming-llm.onrender.com/stream
