@@ -1,6 +1,5 @@
 from flask import Flask, Response, request
 from flask_cors import CORS
-import time
 import json
 
 app = Flask(__name__)
@@ -54,7 +53,7 @@ Cart abandonment rate sits at 68%, representing $340K in potential monthly reven
             # Use json.dumps to properly escape the character
             safe_char = json.dumps(char)[1:-1]  # Remove surrounding quotes from json.dumps
             yield f'data: {{"content": "{safe_char}"}}\n\n'
-            time.sleep(0.01)
+            # NO SLEEP - send as fast as possible!
         
         yield 'data: [DONE]\n\n'
     
